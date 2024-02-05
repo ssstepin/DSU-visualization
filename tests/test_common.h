@@ -10,15 +10,15 @@
 namespace DSUTest::Testcommon {
 struct TestData {
   size_t val;
-
-  TestData() = default;
-
-  TestData(size_t x) : val(x) {}
-
-  bool operator==(const TestData &other) const {
-    return this->val == other.val;
-  }
 };
+
+inline bool operator==(const TestData &lhs, const TestData &rhs) {
+  return lhs.val == rhs.val;
+}
+
+inline bool operator!=(const TestData &lhs, const TestData &rhs) {
+  return lhs.val != rhs.val;
+}
 
 template <class T> class TestGraph {
   using Index = int64_t;
@@ -34,7 +34,7 @@ public:
   TestGraph(const std::vector<T> &container)
       : data(container), adj_list(container.size()) {}
 
-  size_t size() { return data.size(); }
+  size_t size() const { return data.size(); }
 
   void add_edge(Index left_vertex, Index right_vertex) {
     assert(indexCorrect(left_vertex));
@@ -62,9 +62,6 @@ public:
   }
 
 private:
-  Container data;
-  AdjList adj_list;
-
   bool is_adj(Index left_vertex, Index right_vertex) {
     return adj_list[left_vertex].find(right_vertex) !=
            adj_list[left_vertex].end();
@@ -101,17 +98,12 @@ private:
     }
     return dfs_result;
   }
+
+  Container data;
+  AdjList adj_list;
 };
 
-template <class T> std::vector<T> GenerateSample(size_t N) {
-  std::vector<T> sample(N);
-  for (size_t i = 0; i < N; ++i) {
-    sample[i] = T(i);
-  }
-  return sample;
-}
-
-template <class T> void CheckNoEdges(const DSU::DSU<T> &dsu) {
+template <class T> void CheckNoEdges(DSU::DSU<T> &dsu) {
   for (size_t i = 0; i < dsu.size(); ++i) {
     assert(dsu.find(i) == i);
   }
@@ -124,7 +116,7 @@ void CheckData(const DSU::DSU<T> &dsu, const std::vector<T> &data) {
   }
 }
 
-template <class T> void CheckCompleteGraph(const DSU::DSU<T> &dsu) {
+template <class T> void CheckCompleteGraph(DSU::DSU<T> &dsu) {
   size_t N = dsu.size();
   for (size_t i = 0; i < N; ++i) {
     for (size_t j = 0; j < N; ++j) {
